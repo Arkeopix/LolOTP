@@ -1,36 +1,59 @@
+#include "lolOTP.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <openssl/sha.h>
+#include <time.h>
 
-int     decode_base32(const int *encoded, int *res, int buff_size) {
-  int   buffer = 0;
-  int   bits_left = 0;
-  int   count = 0;
+static const char base32_alphabet[32] = {
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', '2', '3', '4', '5', '6', '7',
+};
 
-  for (const int *ptr = encoded; count < buff_size && *ptr; ++ptr) {
-    int ch = *ptr;
-    if (ch == ' ' || ch == '\t' || ch == '\r' || ch =='\n' || ch == '-')
-      continue;
-    buffer <<= 5;
+int     base32_decode(const char *in, int len, char *out) {
+  
+}
 
-    if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) {
-      ch = (ch & 31) - 1;
-    } else if (ch >= '2' && ch <= '7') {
-      ch -= '2' - 26;
+static  char    *to_usable_secret(char *s) {
+  int   i = 0, j = 0;
+  char  *cpy = strdup(s);
+
+  while (s[i] != '\0') {
+    if (s[i] == ' ') {
+      i++;
     } else {
-      return -1;
-    }
-    buffer |= ch;
-    bits_left += 5;
-    if (bits_left >= 8) {
-      result[count++] = buffer >> (bits_left - 8);
-      bits-left -= 8;
+      cpy[j] = toupper(s[i]);
+      i++;j++;
     }
   }
-  if (count < buff_size) {
-    result[count] = '\000';
-  }
-  return count;
+  cpy[j] = '\0';
+  return cpy;
 }
 
 int     main(int argc, char *argv[]) {
+  char   secret[SECRET_SIZE];
+  int   input_time;
+  char  hmac[SHA_DIGEST_LENGTH * 2];
+  char  four_bytes[32];
+  int   code;
 
+  if ((base32_decode(to_usable_secret(SECRET_DEV,
+      strlen(to_usable_secret(SECRET_DEV)), secret)) < 0) {
+        fprintf(stderr, DECODE_BASE32_ERR);
+        return -1;
+  }
+
+  base32_decode(secret, SECRET_SIZE, to_usable_secret(SECRET_DEV), strlen(to_usable_secret(SECRET_DEV)));
+  printf("usable secret is [%s]\n", secret);
+  input_time = time(NULL) / 30;
+//  SHA1((unsigned char*)secret + SHA1(secret + input_time, SHA_DIGEST_LENGTH * 2, NULL),
+//    SHA_DIGEST_LENGTH * 2, hmac);
+//  four_bytes = hmac + (sizeof(hmac) - 32);
+//  code = (int)(four_bytes);
+//  code = code % 1000000;
+  printf("code is %d\n", code);
+  return 0;
 }
