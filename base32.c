@@ -57,7 +57,6 @@ static  char *to_ascii(int chunck) {
     return NULL;
   }
   memset(tmp, 0, sizeof(tmp));
-  printf("%d\n", bin_to_dec(chunck));
   tmp[0] = bin_to_dec(chunck);
   return tmp;
 }
@@ -86,7 +85,6 @@ static  char *get_bin_from_b32_alpha(char c) {
     i++;
   }
   dec_to_bin(i, bin, 1);
-  printf("bin from b32 = %s\n", bin);
   return bin;
 }
 
@@ -99,12 +97,10 @@ int    base32_decode(char *in, char *out) {
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
   }
-  printf ("bin %s\n", bin);
   for (int i = 0; i < strlen(bin); i += 8) {
     memcpy(chunck, &bin[i], 8);
     chunck[8] = '\0';
     if (strlen(chunck) % 8 == 0) {
-      printf("chunck = %s\n", chunck);
       strcat(out, to_ascii(atoi(chunck)));
     }
   }
@@ -116,7 +112,6 @@ int     base32_encode(char *in, char *out) {
   char  chunck[5];
 
   bin = string_to_bin(in);
-  printf("full bin encode %s\n", bin);
   for (int i = 0; i < strlen(bin); i += 5) {
     memcpy(chunck, &bin[i], 5);
     chunck[5] = '\0';
@@ -128,7 +123,6 @@ int     base32_encode(char *in, char *out) {
   while (strlen(out) % 8 != 0) {
     strcat(out, "=");
   }
-  printf("bin end encode %s\n", bin);
   return 0;
 }
 
