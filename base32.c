@@ -10,8 +10,8 @@ static char *base32_alpha[32] = {
   "Y", "Z", "2", "3", "4", "5", "6", "7",
 };
 
-static  void dec_to_bin(char c, char *out) {
-  for (int i = 7; i >= 0; --i) {
+static  void dec_to_bin(char c, char *out, int mod) {
+  for (int i = (mod == 0 ? 7 : 4); i >= 0; --i) {
     strcat(out, (c & (1 << i)) ? "1" : "0");
   }
 }
@@ -38,9 +38,8 @@ static  char *string_to_bin(char *s) {
   memset(bin, 0, sizeof(bin));
   while (*p != '\0') {
     memset(&tmp_bin, 0, sizeof(tmp_bin));
-    dec_to_bin(*p, tmp_bin);
+    dec_to_bin(*p, tmp_bin, 0);
     strcat(bin, tmp_bin);
-    printf("char %c, bin = %s\n", *p, tmp_bin);
     p++;
   }
   bin[strlen(bin)] = '\0';
@@ -54,6 +53,10 @@ static  char *to_base32_alpha(int chunck) {
 static  char *to_ascii(int chunck) {
   char  *tmp;
 
+  if ((tmp = malloc(sizeof(char))) == NULL) {
+    return NULL;
+  }
+  memset(tmp, 0, sizeof(tmp));
   printf("%d\n", bin_to_dec(chunck));
   tmp[0] = bin_to_dec(chunck);
   return tmp;
@@ -75,14 +78,14 @@ static  char *get_bin_from_b32_alpha(char c) {
   int   i = 0;
   char  *bin;
 
-  if ((bin = malloc(9*sizeof(char))) == NULL) {
+  if ((bin = malloc(9 * sizeof(char))) == NULL) {
     return NULL;
   }
   memset(bin, 0, sizeof(bin));
   while (*base32_alpha[i] != c) {
     i++;
   }
-  dec_to_bin(i, bin);
+  dec_to_bin(i, bin, 1);
   printf("bin from b32 = %s\n", bin);
   return bin;
 }
@@ -96,7 +99,15 @@ int    base32_decode(char *in, char *out) {
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
   }
-  printf ("%s\n", bin);
+  printf ("bin %s\n", bin);
+  for (int i = 0; i < strlen(bin); i += 8) {
+    memcpy(chunck, &bin[i], 8);
+    chunck[8] = '\0';
+    if (strlen(chunck) % 8 == 0) {
+      printf("chunck = %s\n", chunck);
+      strcat(out, to_ascii(atoi(chunck)));
+    }
+  }
   return 0;
 }
 
@@ -112,13 +123,12 @@ int     base32_encode(char *in, char *out) {
     while (strlen(chunck) % 5 != 0) {
       strcat(chunck, "0");
     }
-    printf("bin = %s\n", chunck);
     strcat(out, to_base32_alpha(atoi(chunck)));
   }
   while (strlen(out) % 8 != 0) {
     strcat(out, "=");
   }
-  printf("%s\n", bin);
+  printf("bin end encode %s\n", bin);
   return 0;
 }
 
