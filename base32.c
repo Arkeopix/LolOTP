@@ -1,95 +1,84 @@
-// Base32 implementation
-//
-// Copyright 2010 Google Inc.
-// Author: Markus Gutschke
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
+#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
-#include "base32.h"
+static char *base32_alpha[32] = {
+  "A", "B", "C", "D", "E", "F", "G", "H",
+  "I", "J", "K", "L", "M", "N", "O", "P",
+  "Q", "R", "S", "T", "U", "V", "W", "X",
+  "Y", "Z", "2", "3", "4", "5", "6", "7",
+};
 
-int base32_decode(const uint8_t *encoded, uint8_t *result, int bufSize) {
-  int buffer = 0;
-  int bitsLeft = 0;
-  int count = 0;
-  for (const uint8_t *ptr = encoded; count < bufSize && *ptr; ++ptr) {
-    uint8_t ch = *ptr;
-    if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n' || ch == '-') {
-      continue;
-    }
-    buffer <<= 5;
+static  void dec_to_bin(char c, char *out) {
+  char  *padded_bin;
 
-    // Deal with commonly mistyped characters
-    if (ch == '0') {
-      ch = 'O';
-    } else if (ch == '1') {
-      ch = 'L';
-    } else if (ch == '8') {
-      ch = 'B';
-    }
-
-    // Look up one base32 digit
-    if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')) {
-      ch = (ch & 0x1F) - 1;
-    } else if (ch >= '2' && ch <= '7') {
-      ch -= '2' - 26;
-    } else {
-      return -1;
-    }
-
-    buffer |= ch;
-    bitsLeft += 5;
-    if (bitsLeft >= 8) {
-      result[count++] = buffer >> (bitsLeft - 8);
-      bitsLeft -= 8;
-    }
+  for (int i = 7; i >= 0; --i) {
+    strcat(out, (c & (1 << i)) ? "1" : "0");
   }
-  if (count < bufSize) {
-    result[count] = '\000';
-  }
-  return count;
 }
 
-int base32_encode(const uint8_t *data, int length, uint8_t *result,
-                  int bufSize) {
-  if (length < 0 || length > (1 << 28)) {
-    return -1;
+static  char *string_to_bin(char *s) {
+  char  *p = s, *bin;
+  char  tmp_bin[9];
+
+  if ((bin = malloc(1024 * sizeof(char))) == NULL) {
+    return NULL;
   }
-  int count = 0;
-  if (length > 0) {
-    int buffer = data[0];
-    int next = 1;
-    int bitsLeft = 8;
-    while (count < bufSize && (bitsLeft > 0 || next < length)) {
-      if (bitsLeft < 5) {
-        if (next < length) {
-          buffer <<= 8;
-          buffer |= data[next++] & 0xFF;
-          bitsLeft += 8;
-        } else {
-          int pad = 5 - bitsLeft;
-          buffer <<= pad;
-          bitsLeft += pad;
-        }
-      }
-      int index = 0x1F & (buffer >> (bitsLeft - 5));
-      bitsLeft -= 5;
-      result[count++] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[index];
+  memset(bin, 0, sizeof(bin));
+  while (*p != '\0') {
+    memset(&tmp_bin, 0, sizeof(tmp_bin));
+    dec_to_bin(*p, tmp_bin);
+    printf("char %c, bin %s\n", *p, tmp_bin);
+    strcat(bin, tmp_bin);
+    p++;
+  }
+  bin[strlen(bin)] = '\0';
+  return bin;
+}
+
+static  int bin_to_dec(int bin) {
+  int   dec = 0, rem = 0, i = 0;
+
+  while (bin > 0) {
+    rem = bin % 10;
+    bin = bin / 10;
+    dec += rem * pow(2,i);
+    i++;
+  }
+  return dec;
+}
+
+static  char *to_base32_alpha(int chunck) {
+  return base32_alpha[bin_to_dec(chunck)];
+}
+
+int     base32_encode(char *in, char *out) {
+  char  *bin;
+  char  chunck[5];
+
+  bin = string_to_bin(in);
+  printf("[%s]\n", bin);
+
+  for (int i = 0; i < strlen(bin); i += 5 ) {
+    memcpy(chunck, &bin[i], 5);
+    chunck[5] = '\0';
+    while (strlen(chunck) % 5 != 0) {
+      strcat(chunck, "0");
     }
+    strcat(out, to_base32_alpha(atoi(chunck)));
+    printf("bin = %s, len = %d, i = %d,\t %s\n", bin, strlen(bin), i, chunck);
   }
-  if (count < bufSize) {
-    result[count] = '\000';
+  while (strlen(out) % 8 != 0) {
+    strcat(out, "=");
   }
-  return count;
+}
+
+int main() {
+  char out[512];
+
+  memset(&out, 0, sizeof(out));
+  base32_encode("yessir", out);
+  printf("out = %s\n", out);
+  return 0;
 }

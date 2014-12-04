@@ -1,10 +1,13 @@
 #include "lolOTP.h"
+#include "base32.h"
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <openssl/sha.h>
 #include <time.h>
+
 
 static  char    *to_usable_secret(char *s) {
   int   i = 0, j = 0;
@@ -19,18 +22,23 @@ static  char    *to_usable_secret(char *s) {
     }
   }
   cpy[j] = '\0';
+	printf("usable_secret = %s\n", cpy);
   return cpy;
 }
 
 int     main(int argc, char *argv[]) {
-  char   secret[SECRET_SIZE];
   int   input_time;
   char  hmac[SHA_DIGEST_LENGTH * 2];
   char  four_bytes[32];
   int   code;
 
-  if ((b32d(to_usable_secret(SECRET_DEV,
-      strlen(to_usable_secret(SECRET_DEV)), secret, b32e_rfc4648)) < 0) {
+	int base32_len = (SECRET_SIZE * 5 + 7) / 8;
+	uint8_t  *secret = malloc(base32_len + 1);
+	if (secret == NULL) {
+		return -1;
+	}
+
+  if ((base32_decode(to_usable_secret(SECRET_DEV), secret, SECRET_SIZE)) < 0) {
         fprintf(stderr, DECODE_BASE32_ERR);
         return -1;
   }
