@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "lolOTP.h"
 #include "base32.h"
 #include <stdint.h>
@@ -37,15 +38,18 @@ int     main(int argc, char *argv[]) {
         return -1;
   }
   printf("usable secret is %s\n", secret);
-  itoa((time(NULL) / 30), input_time, 10);
+  sprintf(input_time, "%d", time(NULL) / 30);
 
   memset(&tmp, 0, sizeof(tmp));
   memcpy(tmp, secret, sizeof(secret));
-  strcat(tmp, input_time);
   printf("tmp = %s\n", tmp);
+  strcat(tmp, input_time);
+  printf("tmp+input_time = %s\n", tmp);
   SHA1(tmp, strlen(tmp), tmp_hmac);
-  //memset(&tmp, 0, sizeof(tmp));
-  //secret = strcat(secret, tmp_hmac)
+  memset(&tmp, 0, sizeof(tmp));
+  printf("tmp hmac = %s\n", tmp_hmac);
+  strcat(secret, tmp_hmac);
+  printf("%s\n", secret);
   //SHA1(secret, strlen(secret), hmac);
   //printf("%s\n", hmac);
 
