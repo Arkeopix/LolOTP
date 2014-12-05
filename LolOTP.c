@@ -27,11 +27,12 @@ static  char    *to_usable_secret(char *s) {
 }
 
 int     main(int argc, char *argv[]) {
-  char	secret[1024], tmp[1024], input_time[20];
+  unsigned char	secret[1024], tmp[1024], input_time[10];
   unsigned char  tmp_hmac[SHA_DIGEST_LENGTH];
   unsigned char  hmac[SHA_DIGEST_LENGTH];
   char  four_bytes[32];
   int   code;
+  
 
   if ((base32_decode(strdup(to_usable_secret(SECRET_DEV)), secret)) < 0) {
         fprintf(stderr, DECODE_BASE32_ERR);
@@ -42,20 +43,19 @@ int     main(int argc, char *argv[]) {
 
   memset(&tmp, 0, sizeof(tmp));
   memcpy(tmp, secret, sizeof(secret));
-  printf("tmp = %s\n", tmp);
   strcat(tmp, input_time);
-  printf("tmp+input_time = %s\n", tmp);
-  SHA1(tmp, strlen(tmp), tmp_hmac);
+  printf("tmp + input_time = %s, size = %d\n", tmp, sizeof(tmp));
+  SHA1(tmp, sizeof(tmp), tmp_hmac);
   memset(&tmp, 0, sizeof(tmp));
   printf("tmp hmac = %s\n", tmp_hmac);
   strcat(secret, tmp_hmac);
   printf("%s\n", secret);
-  //SHA1(secret, strlen(secret), hmac);
-  //printf("%s\n", hmac);
+  SHA1(secret, sizeof(secret), hmac);
+  printf("final hmac id %s\n", hmac);
 
 //  four_bytes = hmac + (sizeof(hmac) - 32);
 //  code = (int)(four_bytes);
 //  code = code % 1000000;
-  printf("code is %d\n", code);
+//  printf("code is %d\n", code);
   return 0;
 }
