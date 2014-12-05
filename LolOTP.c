@@ -26,9 +26,9 @@ static  char    *to_usable_secret(char *s) {
 }
 
 int     main(int argc, char *argv[]) {
-  char	secret[1024];
-	int   input_time;
-  char  hmac[SHA_DIGEST_LENGTH * 2];
+  char	secret[1024], tmp[1024], input_time[20];
+  unsigned char  tmp_hmac[SHA_DIGEST_LENGTH];
+  unsigned char  hmac[SHA_DIGEST_LENGTH];
   char  four_bytes[32];
   int   code;
 
@@ -37,9 +37,18 @@ int     main(int argc, char *argv[]) {
         return -1;
   }
   printf("usable secret is %s\n", secret);
-  input_time = time(NULL) / 30;
-  SHA1((unsigned char*)secret + SHA1(secret + input_time, SHA_DIGEST_LENGTH * 2, NULL),
-      SHA_DIGEST_LENGTH * 2, hmac);
+  itoa((time(NULL) / 30), input_time, 10);
+
+  memset(&tmp, 0, sizeof(tmp));
+  memcpy(tmp, secret, sizeof(secret));
+  strcat(tmp, input_time);
+  printf("tmp = %s\n", tmp);
+  SHA1(tmp, strlen(tmp), tmp_hmac);
+  //memset(&tmp, 0, sizeof(tmp));
+  //secret = strcat(secret, tmp_hmac)
+  //SHA1(secret, strlen(secret), hmac);
+  //printf("%s\n", hmac);
+
 //  four_bytes = hmac + (sizeof(hmac) - 32);
 //  code = (int)(four_bytes);
 //  code = code % 1000000;
