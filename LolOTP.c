@@ -8,7 +8,6 @@
 #include <openssl/sha.h>
 #include <time.h>
 
-
 static  char    *to_usable_secret(char *s) {
   int   i = 0, j = 0;
   char  *cpy = strdup(s);
@@ -27,25 +26,20 @@ static  char    *to_usable_secret(char *s) {
 }
 
 int     main(int argc, char *argv[]) {
-  int   input_time;
+  char	secret[1024];
+	int   input_time;
   char  hmac[SHA_DIGEST_LENGTH * 2];
   char  four_bytes[32];
   int   code;
 
-	int base32_len = (SECRET_SIZE * 5 + 7) / 8;
-	uint8_t  *secret = malloc(base32_len + 1);
-	if (secret == NULL) {
-		return -1;
-	}
-
-  if ((base32_decode(to_usable_secret(SECRET_DEV), secret, SECRET_SIZE)) < 0) {
+  if ((base32_decode(strdup(to_usable_secret(SECRET_DEV)), secret)) < 0) {
         fprintf(stderr, DECODE_BASE32_ERR);
         return -1;
   }
-  printf("usable secret is [%s]\n", secret);
+  printf("usable secret is %s\n", secret);
   input_time = time(NULL) / 30;
-//  SHA1((unsigned char*)secret + SHA1(secret + input_time, SHA_DIGEST_LENGTH * 2, NULL),
-//    SHA_DIGEST_LENGTH * 2, hmac);
+  SHA1((unsigned char*)secret + SHA1(secret + input_time, SHA_DIGEST_LENGTH * 2, NULL),
+      SHA_DIGEST_LENGTH * 2, hmac);
 //  four_bytes = hmac + (sizeof(hmac) - 32);
 //  code = (int)(four_bytes);
 //  code = code % 1000000;

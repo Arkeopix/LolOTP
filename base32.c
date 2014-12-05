@@ -1,7 +1,9 @@
+#include "base32.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 
 static char *base32_alpha[32] = {
   "A", "B", "C", "D", "E", "F", "G", "H",
@@ -77,6 +79,7 @@ static  char *get_bin_from_b32_alpha(char c) {
   int   i = 0;
   char  *bin;
 
+
   if ((bin = malloc(9 * sizeof(char))) == NULL) {
     return NULL;
   }
@@ -93,7 +96,12 @@ int    base32_decode(char *in, char *out) {
   char  chunck[8];
 
   strip_padd(in);
+  if ((bin = malloc(124 * sizeof(char))) == NULL) {
+    out = NULL;
+    return -1;
+  }
   memset(bin, 0, sizeof(bin));
+
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
   }
@@ -108,7 +116,7 @@ int    base32_decode(char *in, char *out) {
 }
 
 int     base32_encode(char *in, char *out) {
-  char  *bin;
+  char  *bin, *tmp;
   char  chunck[5];
 
   bin = string_to_bin(in);
@@ -126,15 +134,15 @@ int     base32_encode(char *in, char *out) {
   return 0;
 }
 
-int main() {
-  char out[512];
-  char out_decode[512];
+//int main() {
+//  char out[512];
+//  char out_decode[512];
 
-  memset(&out, 0, sizeof(out));
-  memset(&out_decode, 0, sizeof(out_decode));
-  base32_encode("yessir", out);
-  printf("out = %s\n", out);
-  base32_decode(out, out_decode);
-  printf("out %s\n", out_decode);
-  return 0;
-}
+//  memset(&out, 0, sizeof(out));
+//  memset(&out_decode, 0, sizeof(out_decode));
+//  base32_encode("s4aigvwwcfh7f235tbzao5r6gkl7wo5r", out);
+//  printf("out = %s\n", out);
+//  base32_decode(out, out_decode);
+//  printf("out %s\n", out_decode);
+//  return 0;
+//}
