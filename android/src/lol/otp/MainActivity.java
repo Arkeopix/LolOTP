@@ -3,8 +3,8 @@ package lol.otp;
 import java.util.List;
 import java.util.Locale;
 
-import android.support.v7.app.ActionBarActivity;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -24,7 +24,7 @@ import android.widget.TextView;
  * @author ganich_j
  *
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
 	private TextView tv_cd;
 	private ListView lv_accountList;
