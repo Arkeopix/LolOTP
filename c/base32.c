@@ -101,7 +101,6 @@ int    base32_decode(char *in, char *out) {
     return -1;
   }
   memset(bin, 0, 124*sizeof(char));
-
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
   }
@@ -109,6 +108,7 @@ int    base32_decode(char *in, char *out) {
     memcpy(chunck, &bin[i], 8);
     chunck[8] = '\0';
     if (strlen(chunck) % 8 == 0) {
+      //      printf("%s\n", out);
       strcat(out, to_ascii(atoi(chunck)));
     }
   }
