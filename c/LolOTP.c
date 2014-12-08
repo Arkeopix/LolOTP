@@ -100,31 +100,16 @@ int		main(int argc, char *argv[]) {
   digest = HMAC(EVP_sha1(), secret, 20, test, 4, NULL, NULL); // not good ====> Mauvais decodage
   printf("hmac byte array = %x%x%x%x%x\n", digest[0], digest[1], digest[2], digest[3], digest[4]);
 
-
-  //ddigest = HMAC(EVP_sha1(), secret, sizeof(secret), ttime, sizeof(ttime), NULL, NULL);
-  //printf("hmac string = [%s]\n\n", ddigest);
-
   last_byte = digest[strlen((char*)digest) -1];
   offset = last_byte & 0xF;
   printf("last byte = %x offset = %x\n", last_byte, offset);
   memcpy(four_bytes, digest + offset, 4);
 
-  //llast_byte = ddigest[strlen((char*)ddigest) -1];
-  //ooffset = llast_byte & 0xF;
-  //printf("last byte = %x offset = %x\n", llast_byte, ooffset);
-  //memcpy(ffour_bytes, ddigest + ooffset, 4);
-
   printf("hmac[offset] = %x\n", digest[offset]);
   printf("four_bytes = %x %x %x %x\n\n", four_bytes[0], four_bytes[1], four_bytes[2], four_bytes[3]);
-
-  //printf("hmac[offset] = %x\n", ddigest[ooffset]);
-  //printf("four_bytes = %x %x %x %x\n\n", ffour_bytes[0], ffour_bytes[1], ffour_bytes[2], ffour_bytes[3]);
  
   code = (bytes_to_int(four_bytes) & 0x7FFFFFFF) % 1000000;
   printf("code = %d\n", code);
-
-  //ccode = (bytes_to_int(ffour_bytes) & 0x7FFFFFFF) % 1000000;
-  //printf("code = %d\n", ccode);
 
   return 0;
 }
