@@ -12,9 +12,9 @@ static char *base32_alpha[32] = {
   "Y", "Z", "2", "3", "4", "5", "6", "7",
 };
 
-static  void dec_to_bin(char c, char *out, int mod) {
+static  void dec_to_bin(unsigned char c, unsigned char *out, int mod) {
   for (int i = (mod == 0 ? 7 : 4); i >= 0; --i) {
-    strcat(out, (c & (1 << i)) ? "1" : "0");
+    strcat((char*)out, (c & (1 << i)) ? "1" : "0");
   }
 }
 
@@ -30,9 +30,9 @@ static  int bin_to_dec(int bin) {
   return dec;
 }
 
-static  char *string_to_bin(char *s) {
-  char  *p = s, *bin;
-  char  tmp_bin[9];
+static  unsigned char *string_to_bin(unsigned char *s) {
+  unsigned char  *p = s, *bin;
+  unsigned char  tmp_bin[9];
 
   if ((bin = malloc(COMMON_STRING_MALLOC)) == NULL) {
     return NULL;
@@ -41,31 +41,31 @@ static  char *string_to_bin(char *s) {
   while (*p != '\0') {
     memset(&tmp_bin, 0, sizeof(tmp_bin));
     dec_to_bin(*p, tmp_bin, 0);
-    strcat(bin, tmp_bin);
+    strcat((char*)bin, (char*)tmp_bin);
     p++;
   }
-  bin[strlen(bin)] = '\0';
+  bin[strlen((char*)bin)] = '\0';
   return bin;
 }
 
-static  char *to_base32_alpha(int chunck) {
-  return base32_alpha[bin_to_dec(chunck)];
+static  unsigned char *to_base32_alpha(int chunck) {
+  return base32_alpha[bin_to_dec((char*)chunck)];
 }
 
-static  char *to_ascii(int chunck) {
-  char  *tmp;
+static  unsigned char *to_ascii(int chunck) {
+  unsigned char  *tmp;
 
-  if ((tmp = malloc(sizeof(char))) == NULL) {
+  if ((tmp = malloc(sizeof(unsigned char))) == NULL) {
     return NULL;
   }
-  memset(tmp, 0, sizeof(char));
+  memset(tmp, 0, sizeof(unsigned char));
   tmp[0] = bin_to_dec(chunck);
   return tmp;
 }
 
-static  void strip_padd(char *s) {
-  char* i = s;
-  char* j = s;
+static  void strip_padd(unsigned char *s) {
+  unsigned char* i = s;
+  unsigned char* j = s;
 
   while (*j != 0) {
     *i = *j++;
@@ -75,15 +75,15 @@ static  void strip_padd(char *s) {
   *i = 0;
 }
 
-static  char *get_bin_from_b32_alpha(char c) {
+static  unsigned char *get_bin_from_b32_alpha(unsigned char c) {
   int   i = 0;
-  char  *bin;
+  unsigned char  *bin;
 
 
-  if ((bin = malloc(9 * sizeof(char))) == NULL) {
+  if ((bin = malloc(9 * sizeof(unsigned char))) == NULL) {
     return NULL;
   }
-  memset(bin, 0, 9*sizeof(char));
+  memset(bin, 0, 9*sizeof(unsigned char));
   while (*base32_alpha[i] != c) {
     i++;
   }
@@ -91,16 +91,16 @@ static  char *get_bin_from_b32_alpha(char c) {
   return bin;
 }
 
-int    base32_decode(char *in, char *out) {
-  char  *bin;
-  char  chunck[8];
+int    base32_decode(unsigned char *in, unsigned char *out) {
+  unsigned char  *bin;
+  unsigned char  chunck[8];
 
   strip_padd(in);
-  if ((bin = malloc(124 * sizeof(char))) == NULL) {
+  if ((bin = malloc(124 * sizeof(unsigned char))) == NULL) {
     out = NULL;
     return -1;
   }
-  memset(bin, 0, 124*sizeof(char));
+  memset(bin, 0, 124*sizeof(unsigned char));
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
   }
@@ -115,9 +115,9 @@ int    base32_decode(char *in, char *out) {
   return 0;
 }
 
-int     base32_encode(char *in, char *out) {
-  char  *bin;
-  char  chunck[5];
+int     base32_encode(unsigned char *in, unsigned char *out) {
+  unsigned char  *bin;
+  unsigned char  chunck[5];
 
   bin = string_to_bin(in);
   for (int i = 0; i < strlen(bin); i += 5) {
@@ -135,8 +135,8 @@ int     base32_encode(char *in, char *out) {
 }
 
 /*int main() {
-  char out[512];
-  char out_decode[512];
+  unsigned char out[512];
+  unsigned char out_decode[512];
 
   memset(&out, 0, sizeof(out));
   memset(&out_decode, 0, sizeof(out_decode));

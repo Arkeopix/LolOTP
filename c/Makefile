@@ -1,6 +1,6 @@
 GCC	=	gcc
 
-CFLAGS	=	-std=c99 -Wall -Werror -pedantic -pipe
+CFLAGS	=	-std=c99 -Wall -pedantic -pipe
 
 CLIBS	=	-lssl -lcrypto -lm
 
