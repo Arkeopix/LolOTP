@@ -34,10 +34,10 @@ static  char *string_to_bin(char *s) {
   char  *p = s, *bin;
   char  tmp_bin[9];
 
-  if ((bin = malloc(1024 * sizeof(char))) == NULL) {
+  if ((bin = malloc(COMMON_STRING_MALLOC)) == NULL) {
     return NULL;
   }
-  memset(bin, 0, sizeof(bin));
+  memset(bin, 0, COMMON_STRING_MALLOC);
   while (*p != '\0') {
     memset(&tmp_bin, 0, sizeof(tmp_bin));
     dec_to_bin(*p, tmp_bin, 0);
@@ -58,7 +58,7 @@ static  char *to_ascii(int chunck) {
   if ((tmp = malloc(sizeof(char))) == NULL) {
     return NULL;
   }
-  memset(tmp, 0, sizeof(tmp));
+  memset(tmp, 0, sizeof(char));
   tmp[0] = bin_to_dec(chunck);
   return tmp;
 }
@@ -83,7 +83,7 @@ static  char *get_bin_from_b32_alpha(char c) {
   if ((bin = malloc(9 * sizeof(char))) == NULL) {
     return NULL;
   }
-  memset(bin, 0, sizeof(bin));
+  memset(bin, 0, 9*sizeof(char));
   while (*base32_alpha[i] != c) {
     i++;
   }
@@ -92,7 +92,7 @@ static  char *get_bin_from_b32_alpha(char c) {
 }
 
 int    base32_decode(char *in, char *out) {
-  char  *bin, *coded;
+  char  *bin;
   char  chunck[8];
 
   strip_padd(in);
@@ -100,7 +100,7 @@ int    base32_decode(char *in, char *out) {
     out = NULL;
     return -1;
   }
-  memset(bin, 0, sizeof(bin));
+  memset(bin, 0, 124*sizeof(char));
 
   for (int i = 0; i < strlen(in); i++) {
     strcat(bin, get_bin_from_b32_alpha(in[i]));
@@ -116,7 +116,7 @@ int    base32_decode(char *in, char *out) {
 }
 
 int     base32_encode(char *in, char *out) {
-  char  *bin, *tmp;
+  char  *bin;
   char  chunck[5];
 
   bin = string_to_bin(in);
@@ -134,15 +134,16 @@ int     base32_encode(char *in, char *out) {
   return 0;
 }
 
-//int main() {
-//  char out[512];
-//  char out_decode[512];
+/*int main() {
+  char out[512];
+  char out_decode[512];
 
-//  memset(&out, 0, sizeof(out));
-//  memset(&out_decode, 0, sizeof(out_decode));
-//  base32_encode("s4aigvwwcfh7f235tbzao5r6gkl7wo5r", out);
-//  printf("out = %s\n", out);
-//  base32_decode(out, out_decode);
-//  printf("out %s\n", out_decode);
-//  return 0;
-//}
+  memset(&out, 0, sizeof(out));
+  memset(&out_decode, 0, sizeof(out_decode));
+  base32_encode("s4aigvwwcfh7f235tbzao5r6gkl7wo5r", out);
+  printf("out = %s\n", out);
+  base32_decode(out, out_decode);
+  printf("out %s\n", out_decode);
+  return 0;
+}
+*/
