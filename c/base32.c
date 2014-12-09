@@ -49,7 +49,7 @@ static  unsigned char *string_to_bin(unsigned char *s) {
 }
 
 static  unsigned char *to_base32_alpha(int chunck) {
-  return base32_alpha[bin_to_dec((char*)chunck)];
+  return base32_alpha[bin_to_dec(chunck)];
 }
 
 static  unsigned char *to_ascii(int chunck) {
@@ -101,8 +101,8 @@ int    base32_decode(unsigned char *in, unsigned char *out) {
     return -1;
   }
   memset(bin, 0, 124*sizeof(unsigned char));
-  for (int i = 0; i < strlen(in); i++) {
-    strcat(bin, get_bin_from_b32_alpha(in[i]));
+  for (int i = 0; i < strlen((const char *)in); i++) {
+    strcat((char *)bin, get_bin_from_b32_alpha(in[i]));
   }
   for (int i = 0; i < strlen(bin); i += 8) {
     memcpy(chunck, &bin[i], 8);

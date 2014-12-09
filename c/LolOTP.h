@@ -5,4 +5,9 @@
 # define  SECRET_SIZE       80
 # define  DECODE_BASE32_ERR "Error decoding base32 secret\n"
 
+union {
+  int		integer;
+  unsigned char	bytes[4];
+}		int_to_bytes;
+
 #endif    /* !LOL_OTP_H_ */
