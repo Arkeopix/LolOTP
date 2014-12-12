@@ -1,18 +1,10 @@
-# D/OMG(4086): Account decoded secret: 20
-# 12-08 18:19:42.572: D/OMG(4086): Decoded secret: e739ce739ce739ce739ce739ce739ce739ce739c
-# 12-08 18:19:42.572: D/OMG(4086): Time: 47268639
-# 12-08 18:19:42.573: D/OMG(4086): Time as byte array: 0000000002d1431f
-# 12-08 18:19:42.584: D/OMG(4086): HMAC: ec553081a7f618364b797ed4db66c8017a03445e
-# 12-08 18:19:42.584: D/OMG(4086): Offset: 14
-# 12-08 18:19:42.584: D/OMG(4086): Chunk: c8017a03
-# 12-08 18:19:42.584: D/OMG(4086): Code: 056323
-
 use Modern::Perl;
 use Digest::SHA qw(hmac_sha1_hex);
 use IO::File;
 use IO::All;
 
-use constant PATH_FILE => "C:\\Users\\" . getlogin . "\\.LolOTP";
+use constant PATH_FILE => $^O eq 'MSWin32' ? 'C:\Users\\' . getlogin . '\.LolOTP'
+                                           : '/home/' . getpwuid($<) . '/.LolOTP';
 
 sub decode_rfc3548 {
   $_ = shift;
@@ -78,14 +70,10 @@ sub print_usage {
   print <<"EOT"
 Usage: LolOTP command [args]
 where command is one of the folowing:
-  code:                    just print a code suitable for authentication with google services
+  code:                    just print a list of codes suitable for authentication with google services
   add [account_name key]:  Add a new account and associate a key to it
 EOT
 }
-
-my $secret = "4444 4444 4444 4444 4444 4444 4444 4444";
-#my $code = get_code($secret);
-#say $code;
 
 my $args = $#ARGV + 1;
 if ($args < 1) {
