@@ -41,12 +41,9 @@ sub get_code {
     my $key = unpack("H*", decode_rfc3548(usable_secret($+{key})));
     my $time = sprintf("%016x", int(time()/30));
     my $hmac = hmac_sha1_hex_string($time, $key);
-
     my $offset = sprintf("%d", hex(substr($hmac, -1)));
-
     my $p1 = 0 + sprintf("%d", hex(substr($hmac, $offset  *2, 8)));
     my $p2 = 0 + sprintf("%d", hex("7fffffff"));
-
     my $token = substr("".($p1 & $p2), -6);
     print "account: $+{account_name}\t code = $token\n";
   }
