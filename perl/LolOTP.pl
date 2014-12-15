@@ -8,15 +8,13 @@ use constant PATH_FILE => $^O eq 'MSWin32' ? 'C:\Users\\' . getlogin . '\.LolOTP
 
 sub decode_rfc3548 {
   $_ = shift;
-  my( $l );
 
+  my( $l );
   tr|A-Z2-7|\0-\37|;
   $_=unpack('B*', $_);
   s/000(.....)/$1/g;
   $l=length;
-
   $_=substr($_, 0, $l & ~7) if $l & 7;
-
   $_=pack('B*', $_);
 }
 
@@ -47,6 +45,7 @@ sub get_code {
     my $token = substr("".($p1 & $p2), -6);
     print "account: $+{account_name}\t code = $token\n";
   }
+  $fh->close;
 }
 
 sub add_code {
@@ -63,12 +62,24 @@ sub add_code {
   }
 }
 
+sub delete_code {
+  $_ = shift;
+
+  my $save_file = io->file(PATH_FILE)->all;
+  $save_file =~ s/\Q$_\E\s[A-Z2-9\s]{39}/ /;
+  my $fh = IO::File->new('>' . PATH_FILE)
+    || die "could not open file: $!";
+  $fh->print($save_file);
+  $fh->close;
+}
+
 sub print_usage {
   print <<"EOT"
 Usage: LolOTP command [args]
 where command is one of the folowing:
   code:                    just print a list of codes suitable for authentication with google services
   add [account_name key]:  Add a new account and associate a key to it
+  delete [account_name]:   delete an account/key association
 EOT
 }
 
@@ -80,5 +91,7 @@ if ($args < 1) {
 my $arg_string = join(' ', @ARGV);
 
 get_code if $arg_string eq 'code';
+delete_code($+{account_name})
+  if $arg_string =~ /delete\s(?<account_name>[a-zA-Z0-9]+)/xms;
 add_code($+{account_name}, $+{key})
   if $arg_string =~ /add\s(?<account_name>[a-zA-Z0-9]+)\s(?<key>[A-Z2-9\s]{39})/xms;
