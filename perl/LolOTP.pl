@@ -71,6 +71,17 @@ sub delete_code {
     || die "could not open file: $!";
   $fh->print($save_file);
   $fh->close;
+  my $tmp = PATH_FILE;
+  qx( perl -i.bak -pe "s{^\\s*\n\$}{}" $tmp );
+}
+
+sub list_accounts {
+  my $fh = IO::File->new('<' . PATH_FILE)
+    || die "could not open file: $!";
+  while ($_ = $fh->getline) {
+    $_ =~ /(?<account_name>[a-zA-Z0-9]+)\s(?<key>[A-Z2-9\s]{39})/xms;
+    say $+{account_name};
+  }
 }
 
 sub print_usage {
@@ -91,6 +102,7 @@ if ($args < 1) {
 my $arg_string = join(' ', @ARGV);
 
 get_code if $arg_string eq 'code';
+list_accounts if $arg_string eq 'list';
 delete_code($+{account_name})
   if $arg_string =~ /delete\s(?<account_name>[a-zA-Z0-9]+)/xms;
 add_code($+{account_name}, $+{key})
